@@ -1,0 +1,27 @@
+{
+  "name": "jayeshchat-realtime-app",
+  "version": "2.4.0",
+  "description": "JayeshChat — Full-Stack Real-Time E2EE Messenger & WebRTC Calling Platform built by Jayesh Lamba",
+  "main": "backend/src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jayesh-lamba/Real-Time-Chat-App.git"
+  },
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend --include=dev && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend"
+  },
+  "keywords": [
+    "jayesh-lamba",
+    "jayeshchat",
+    "realtime-chat",
+    "socket-io",
+    "webrtc",
+    "e2ee",
+    "mern-stack",
+    "react",
+    "tailwindcss"
+  ],
+  "author": "Jayesh Lamba <jayeshanand160@gmail.com> (https://github.com/jayesh-lamba)",
+  "license": "MIT"
+}
