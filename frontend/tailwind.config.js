@@ -1,0 +1,115 @@
+import daisyui from "daisyui";
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        // JayeshChat Obsidian & Electric Indigo Studio Palette
+        "connect-blue": "#6366F1",
+        "connect-blue-dark": "#4F46E5",
+        "connect-blue-light": "rgba(99, 102, 241, 0.16)",
+        "surface": "#0B0F19",
+        "card": "#111827",
+        "ink": "#F8FAFC",
+        "ink-muted": "#94A3B8",
+        "border-subtle": "#1E293B",
+        "online-green": "#10B981",
+      },
+      fontFamily: {
+        sans: [
+          "Inter",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+      },
+      keyframes: {
+        "slide-in": {
+          from: { opacity: "0", transform: "translateY(-8px) scale(0.97)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "pulse-dot": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.2)" },
+        },
+      },
+      animation: {
+        "slide-in": "slide-in 0.18s ease-out both",
+        "fade-in": "fade-in 0.15s ease-out both",
+        "fade-in-up": "fade-in-up 0.2s ease-out both",
+        "pulse-dot": "pulse-dot 2s ease-in-out infinite",
+      },
+    },
+  },
+  plugins: [daisyui],
+  daisyui: {
+    themes: [
+      {
+        jayesh: {
+          "color-scheme": "dark",
+          "primary": "#6366F1",
+          "primary-content": "#FFFFFF",
+          "secondary": "#1E1B4B",
+          "secondary-content": "#A5B4FC",
+          "accent": "#10B981",
+          "accent-content": "#FFFFFF",
+          "neutral": "#1E293B",
+          "neutral-content": "#F8FAFC",
+          "base-100": "#111827",
+          "base-200": "#0B0F19",
+          "base-300": "#1E293B",
+          "base-content": "#F8FAFC",
+          "info": "#38BDF8",
+          "success": "#10B981",
+          "warning": "#F59E0B",
+          "error": "#EF4444",
+        },
+        meta: {
+          "color-scheme": "dark",
+          "primary": "#6366F1",
+          "primary-content": "#FFFFFF",
+          "secondary": "#1E1B4B",
+          "secondary-content": "#A5B4FC",
+          "accent": "#10B981",
+          "accent-content": "#FFFFFF",
+          "neutral": "#1E293B",
+          "neutral-content": "#F8FAFC",
+          "base-100": "#111827",
+          "base-200": "#0B0F19",
+          "base-300": "#1E293B",
+          "base-content": "#F8FAFC",
+          "info": "#38BDF8",
+          "success": "#10B981",
+          "warning": "#F59E0B",
+          "error": "#EF4444",
+        },
+      },
+      "dark",
+      "night",
+      "dracula",
+      "synthwave",
+      "cyberpunk",
+      "forest",
+      "luxury",
+      "sunset",
+      "nord",
+      "dim",
+      "light",
+    ],
+  },
+};
