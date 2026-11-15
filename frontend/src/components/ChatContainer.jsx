@@ -14,7 +14,8 @@ import {
   CheckSquare, 
   Square, 
   Check, 
-  X 
+  X,
+  MessageSquare
 } from "lucide-react";
 
 import ChatHeader from "./ChatHeader";
@@ -380,24 +381,16 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div 
-        className="flex-1 overflow-y-auto px-4 py-4"
+        className="flex-1 overflow-y-auto px-6 py-5"
         style={themePatternStyles[activeTheme]}
       >
-        {/* E2EE Verification Banner */}
-        <div className="flex justify-center mb-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-card/80 border border-border-subtle text-[11px] text-ink-muted shadow-sm">
-            <span>🔒</span>
-            <span>
-              End-to-End Encrypted via X25519 · <strong className="text-indigo-300">JayeshChat</strong> by Jayesh Lamba
-            </span>
-          </div>
-        </div>
-
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-2 text-ink-muted">
-            <div className="text-4xl">💬</div>
-            <p className="text-sm font-medium text-ink">No messages yet</p>
-            <p className="text-xs">Say hello to {selectedUser.fullName}!</p>
+          <div className="flex flex-col items-center justify-center h-full text-center gap-2 text-ink-muted select-none">
+            <div className="size-11 rounded-xl bg-card border border-border-subtle flex items-center justify-center mb-1">
+              <MessageSquare size={18} className="text-ink-muted" />
+            </div>
+            <p className="text-sm font-medium text-ink">No messages with {selectedUser.fullName}</p>
+            <p className="text-xs text-ink-muted">Write a message below to start the conversation.</p>
           </div>
         )}
 
@@ -423,7 +416,7 @@ const ChatContainer = () => {
                   );
                 }
 
-                const isSent = message.senderId === authUser._id;
+                const isSent = Boolean(message.isSentByUser) || message.senderId === authUser?._id;
 
                 const isLastInGroup =
                   index === dayMessages.length - 1 ||
@@ -463,7 +456,7 @@ const ChatContainer = () => {
                     {/* Avatar */}
                     {isLastInGroup ? (
                       <img
-                        src={isSent ? authUser.profilePic || "/avatar.png" : selectedUser.profilePic || "/avatar.png"}
+                        src={isSent ? (message.senderAvatar || authUser?.profilePic || "./avatar.png") : (selectedUser.profilePic || "./avatar.png")}
                         alt="avatar"
                         className="size-7 rounded-full object-cover flex-shrink-0 mb-0.5"
                       />
@@ -598,23 +591,6 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
-
-        {/* Live Partner Typing Indicator */}
-        {isPartnerTyping && (
-          <div className="flex items-end gap-2 mt-3 animate-fade-in-up">
-            <img
-              src={selectedUser.profilePic || "./avatar.png"}
-              alt={selectedUser.fullName}
-              className="size-7 rounded-full object-cover flex-shrink-0 mb-0.5"
-            />
-            <div className="bubble-received px-4 py-2.5 text-xs text-ink-muted flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-indigo-400 animate-bounce" />
-              <span className="size-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:150ms]" />
-              <span className="size-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:300ms]" />
-              <span className="ml-1 text-[11px] text-ink-muted">{selectedUser.fullName.split(" ")[0]} is typing…</span>
-            </div>
-          </div>
-        )}
 
         <div ref={messageEndRef} />
       </div>

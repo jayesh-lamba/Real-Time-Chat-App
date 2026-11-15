@@ -1,112 +1,99 @@
-import { X, Mail, AtSign, Calendar, Shield, User, FileText } from "lucide-react";
+import { X, Mail, Calendar, Shield, FileText } from "lucide-react";
 
-const PartnerProfileModal = ({ user, isOnline, onClose }) => {
+const PartnerProfileModal = ({ user, onClose }) => {
   if (!user) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
-      <div 
-        className="bg-card w-full max-w-md rounded-3xl border border-border-subtle shadow-2xl overflow-hidden animate-scale-in"
+      <div
+        className="bg-card w-full max-w-md rounded-2xl border border-border-subtle shadow-2xl overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Banner header strip */}
-        <div className="h-24 bg-gradient-to-r from-connect-blue to-connect-blue-dark relative">
+        <div className="h-20 bg-surface border-b border-border-subtle relative">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/20 hover:bg-black/35 text-white/90 hover:text-white transition-all focus:outline-none"
+            className="absolute top-3 right-3 p-1.5 rounded-lg bg-card hover:bg-border-subtle text-ink-muted hover:text-ink transition-colors focus:outline-none"
             aria-label="Close profile"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
 
-        {/* Profile Header Block */}
-        <div className="px-6 pb-5 -mt-12 flex items-end gap-4 border-b border-border-subtle">
+        <div className="px-6 pb-5 -mt-10 flex items-end gap-4 border-b border-border-subtle">
           <div className="relative flex-shrink-0">
             <img
-              src={user.profilePic || "/avatar.png"}
+              src={user.profilePic || "./avatar.png"}
               alt={user.fullName}
-              className="size-24 rounded-full object-cover border-4 border-card shadow-md"
+              className="size-20 rounded-full object-cover border-4 border-card"
             />
-            {isOnline && (
-              <span className="absolute bottom-1 right-1 size-4 rounded-full bg-online-green border-2 border-card" />
-            )}
           </div>
 
           <div className="min-w-0 pb-1">
-            <h3 className="text-lg font-bold text-ink truncate leading-tight">
+            <h3 className="text-base font-semibold text-ink truncate leading-tight">
               {user.fullName}
             </h3>
-            <p className="text-sm font-semibold text-connect-blue mt-0.5">
+            <p className="text-xs text-ink-muted mt-0.5">
               @{user.username || "user"}
             </p>
-            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 mt-1.5 rounded-full ${
-              isOnline ? "bg-green-500/10 text-online-green" : "bg-zinc-500/10 text-ink-muted"
-            }`}>
-              {isOnline ? "Active Now" : "Offline"}
-            </span>
           </div>
         </div>
 
-        {/* Info Rows Area */}
         <div className="p-6 space-y-4">
-          <h4 className="text-xs font-bold text-ink-muted uppercase tracking-wider">Basic Details</h4>
-          
-          <div className="space-y-3.5">
-            {/* Bio info */}
+          <h4 className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">
+            Contact Info
+          </h4>
+
+          <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <div className="size-9 rounded-full bg-surface flex items-center justify-center flex-shrink-0 mt-0.5">
-                <FileText size={16} className="text-ink-muted" />
+              <div className="size-8 rounded-lg bg-surface flex items-center justify-center flex-shrink-0 mt-0.5">
+                <FileText size={14} className="text-ink-muted" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-ink-muted">Bio Description</p>
-                <p className="text-sm font-medium text-ink break-words mt-0.5">
-                  "{user.bio || "Hey there! I am using JayeshChat by Jayesh Lamba."}"
+                <p className="text-[11px] text-ink-muted">Bio</p>
+                <p className="text-xs text-ink break-words mt-0.5">
+                  {user.bio || "JayeshChat user"}
                 </p>
               </div>
             </div>
 
-            {/* Email info */}
             <div className="flex items-center gap-3">
-              <div className="size-9 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
-                <Mail size={16} className="text-ink-muted" />
+              <div className="size-8 rounded-lg bg-surface flex items-center justify-center flex-shrink-0">
+                <Mail size={14} className="text-ink-muted" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-ink-muted">Email Address</p>
-                <p className="text-sm font-semibold text-ink truncate mt-0.5">
-                  {user.email || "No email available"}
+                <p className="text-[11px] text-ink-muted">Email</p>
+                <p className="text-xs text-ink truncate mt-0.5">
+                  {user.email || "Not shared"}
                 </p>
               </div>
             </div>
 
-            {/* Member since info */}
             {user.createdAt && (
               <div className="flex items-center gap-3">
-                <div className="size-9 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
-                  <Calendar size={16} className="text-ink-muted" />
+                <div className="size-8 rounded-lg bg-surface flex items-center justify-center flex-shrink-0">
+                  <Calendar size={14} className="text-ink-muted" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-ink-muted">Member Since</p>
-                  <p className="text-sm font-semibold text-ink mt-0.5">
+                  <p className="text-[11px] text-ink-muted">Joined</p>
+                  <p className="text-xs text-ink mt-0.5">
                     {user.createdAt.split("T")[0]}
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Account Status info */}
             <div className="flex items-center gap-3">
-              <div className="size-9 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-                <Shield size={16} className="text-online-green" />
+              <div className="size-8 rounded-lg bg-surface flex items-center justify-center flex-shrink-0">
+                <Shield size={14} className="text-connect-blue" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-ink-muted">Account Status</p>
-                <p className="text-sm font-semibold text-online-green mt-0.5">Verified Connection</p>
+                <p className="text-[11px] text-ink-muted">Encryption</p>
+                <p className="text-xs text-ink mt-0.5">End-to-End Encrypted</p>
               </div>
             </div>
           </div>

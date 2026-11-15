@@ -134,7 +134,7 @@ const SettingsPage = () => {
                 <div className="size-8 rounded-full bg-connect-blue flex items-center justify-center text-white text-xs font-bold">JL</div>
                 <div>
                   <p className="text-sm font-semibold">Jayesh Lamba</p>
-                  <p className="text-xs text-ink-muted">@jayesh_lamba · Online</p>
+                  <p className="text-xs text-ink-muted">@jayesh_lamba</p>
                 </div>
               </div>
 

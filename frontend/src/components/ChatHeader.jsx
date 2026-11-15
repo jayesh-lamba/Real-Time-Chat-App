@@ -1,16 +1,13 @@
 import { useState } from "react";
-import { X, ChevronLeft, Phone, Video, Palette, Lock } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { X, ChevronLeft, Phone, Video, Palette } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
 import AvatarLightbox from "./AvatarLightbox";
 import PartnerProfileModal from "./PartnerProfileModal";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser, chatThemes, setChatTheme, isPartnerTyping } = useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { selectedUser, setSelectedUser, chatThemes, setChatTheme } = useChatStore();
   const { initiateCall } = useCallStore();
-  const isOnline = onlineUsers.includes(selectedUser._id);
   const [showLightbox, setShowLightbox] = useState(false);
   const [showPartnerProfile, setShowPartnerProfile] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
@@ -18,39 +15,36 @@ const ChatHeader = () => {
   const currentTheme = chatThemes[selectedUser._id] || "default";
 
   const themeOptions = [
-    { id: "default", label: "Obsidian Studio", color: "bg-slate-800 border border-indigo-500/40" },
-    { id: "midnight", label: "Midnight Starlight", color: "bg-indigo-950" },
-    { id: "ocean", label: "Cyber Ocean", color: "bg-cyan-500" },
-    { id: "love", label: "Crimson Pulse", color: "bg-rose-500" },
-    { id: "happy", label: "Amber Gold", color: "bg-amber-400" },
+    { id: "default", label: "Default Dark", color: "bg-zinc-800 border border-zinc-600" },
+    { id: "midnight", label: "Midnight Slate", color: "bg-slate-900" },
+    { id: "ocean", label: "Deep Ocean", color: "bg-cyan-700" },
+    { id: "love", label: "Crimson", color: "bg-rose-700" },
+    { id: "happy", label: "Warm Amber", color: "bg-amber-600" },
   ];
 
   return (
     <>
-      <div className="px-4 py-3 border-b border-border-subtle bg-card/95 backdrop-blur-sm flex items-center justify-between gap-3">
-        {/* Left: back button + avatar + info */}
+      <div className="h-14 px-5 border-b border-border-subtle bg-card flex items-center justify-between gap-3 flex-shrink-0">
+        {/* Left: back button + avatar + name */}
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => setSelectedUser(null)}
-            className="sm:hidden flex-shrink-0 p-1.5 -ml-1 rounded-full hover:bg-surface text-ink-muted transition-colors focus:outline-none focus:ring-2 focus:ring-connect-blue/40"
+            className="sm:hidden flex-shrink-0 p-1.5 -ml-1 rounded-lg hover:bg-surface text-ink-muted transition-colors focus:outline-none"
             aria-label="Back to contacts"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
 
           <button
             onClick={() => setShowLightbox(true)}
-            className="relative flex-shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-connect-blue/50 group"
+            className="relative flex-shrink-0 rounded-full focus:outline-none group"
             aria-label={`View ${selectedUser.fullName}'s profile photo`}
           >
             <img
               src={selectedUser.profilePic || "./avatar.png"}
               alt={selectedUser.fullName}
-              className="size-10 rounded-full object-cover border border-border-subtle transition-opacity group-hover:opacity-85"
+              className="size-9 rounded-full object-cover border border-border-subtle transition-opacity group-hover:opacity-85"
             />
-            {isOnline && (
-              <span className="online-dot" aria-label="Online" />
-            )}
           </button>
 
           <button
@@ -58,62 +52,46 @@ const ChatHeader = () => {
             className="min-w-0 text-left hover:opacity-90 transition-opacity focus:outline-none"
             aria-label="View profile details"
           >
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-ink truncate leading-tight">
-                {selectedUser.fullName}
-              </h3>
-              <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
-                <Lock size={9} />
-                E2EE
-              </span>
-            </div>
-            <p className="text-xs text-ink-muted truncate mt-0.5">
-              {isPartnerTyping ? (
-                <span className="text-indigo-400 font-semibold animate-pulse">
-                  typing a message...
-                </span>
-              ) : (
-                <>
-                  <span className={isOnline ? "text-online-green font-semibold" : ""}>
-                    {isOnline ? "● Online" : "Offline"}
-                  </span>
-                  {selectedUser.username && ` · @${selectedUser.username}`}
-                </>
-              )}
-            </p>
+            <h3 className="text-sm font-semibold text-ink truncate leading-tight">
+              {selectedUser.fullName}
+            </h3>
+            {selectedUser.username && (
+              <p className="text-xs text-ink-muted truncate mt-0.5">
+                @{selectedUser.username}
+              </p>
+            )}
           </button>
         </div>
 
-        {/* Right actions: call buttons + theme + close */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        {/* Right actions */}
+        <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={() => initiateCall(selectedUser, "voice")}
-            className="p-2 rounded-full hover:bg-surface text-ink-muted hover:text-connect-blue transition-colors focus:outline-none focus:ring-2 focus:ring-connect-blue/40"
-            aria-label="Start voice call"
-            title="Start Voice Call"
+            className="p-2 rounded-lg hover:bg-surface text-ink-muted hover:text-ink transition-colors focus:outline-none"
+            aria-label="Voice call"
+            title="Voice call"
           >
-            <Phone size={17} />
+            <Phone size={16} />
           </button>
           <button
             onClick={() => initiateCall(selectedUser, "video")}
-            className="p-2 rounded-full hover:bg-surface text-ink-muted hover:text-connect-blue transition-colors focus:outline-none focus:ring-2 focus:ring-connect-blue/40"
-            aria-label="Start video call"
-            title="Start Video Call"
+            className="p-2 rounded-lg hover:bg-surface text-ink-muted hover:text-ink transition-colors focus:outline-none"
+            aria-label="Video call"
+            title="Video call"
           >
-            <Video size={17} />
+            <Video size={16} />
           </button>
 
-          {/* Theme Palette Selector */}
           <div className="relative">
             <button
               onClick={() => setShowThemeMenu(!showThemeMenu)}
-              className={`p-2 rounded-full hover:bg-surface text-ink-muted hover:text-connect-blue transition-colors focus:outline-none focus:ring-2 focus:ring-connect-blue/40 ${
-                showThemeMenu ? "text-connect-blue bg-connect-blue-light" : ""
+              className={`p-2 rounded-lg hover:bg-surface text-ink-muted hover:text-ink transition-colors focus:outline-none ${
+                showThemeMenu ? "text-ink bg-surface" : ""
               }`}
-              aria-label="Change chat background theme"
-              title="Customize Chat Wallpaper"
+              aria-label="Change chat background"
+              title="Appearance"
             >
-              <Palette size={17} />
+              <Palette size={16} />
             </button>
 
             {showThemeMenu && (
@@ -122,9 +100,9 @@ const ChatHeader = () => {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowThemeMenu(false)}
                 />
-                <div className="absolute right-0 top-full mt-2 z-50 bg-card border border-border-subtle rounded-2xl shadow-xl py-2 w-48 animate-scale-in">
-                  <p className="px-4 py-1.5 text-[10px] font-bold text-ink-muted uppercase tracking-wider">
-                    Chat Wallpaper
+                <div className="absolute right-0 top-full mt-1.5 z-50 bg-card border border-border-subtle rounded-xl shadow-xl py-1.5 w-44 animate-scale-in">
+                  <p className="px-3.5 py-1 text-[10px] font-semibold text-ink-muted uppercase tracking-wider">
+                    Background
                   </p>
                   <div className="h-px bg-border-subtle my-1" />
                   {themeOptions.map((opt) => (
@@ -134,12 +112,12 @@ const ChatHeader = () => {
                         setChatTheme(selectedUser._id, opt.id);
                         setShowThemeMenu(false);
                       }}
-                      className={`w-full px-4 py-2 hover:bg-surface text-xs text-ink flex items-center justify-between transition-colors ${
-                        currentTheme === opt.id ? "font-semibold bg-surface/50 text-connect-blue" : ""
+                      className={`w-full px-3.5 py-1.5 hover:bg-surface text-xs text-ink flex items-center justify-between transition-colors ${
+                        currentTheme === opt.id ? "font-medium bg-surface/60 text-connect-blue" : ""
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        <span className={`size-3 rounded-full ${opt.color}`} />
+                        <span className={`size-2.5 rounded-full ${opt.color}`} />
                         {opt.label}
                       </span>
                       {currentTheme === opt.id && <span className="text-xs">✓</span>}
@@ -152,10 +130,10 @@ const ChatHeader = () => {
 
           <button
             onClick={() => setSelectedUser(null)}
-            className="hidden sm:flex flex-shrink-0 items-center justify-center size-8 rounded-full hover:bg-surface text-ink-muted transition-colors focus:outline-none focus:ring-2 focus:ring-connect-blue/40"
+            className="hidden sm:flex flex-shrink-0 items-center justify-center size-8 rounded-lg hover:bg-surface text-ink-muted hover:text-ink transition-colors focus:outline-none"
             aria-label="Close chat"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
       </div>
@@ -171,7 +149,6 @@ const ChatHeader = () => {
       {showPartnerProfile && (
         <PartnerProfileModal
           user={selectedUser}
-          isOnline={isOnline}
           onClose={() => setShowPartnerProfile(false)}
         />
       )}

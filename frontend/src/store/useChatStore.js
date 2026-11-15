@@ -4,11 +4,44 @@ import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
 import { encryptMessage, decryptMessage } from "../lib/crypto";
 import { playNotificationSound } from "../lib/sounds";
-import {
-  DEMO_USERS,
-  INITIAL_DEMO_MESSAGES,
-  DEMO_AUTO_REPLIES,
-} from "../lib/demoData";
+import { DEMO_USERS } from "../lib/demoData";
+
+const STORAGE_KEY = "jayeshchat_persisted_messages_v2";
+const USERS_STORAGE_KEY = "jayeshchat_persisted_users_v2";
+
+const loadSavedMessages = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveMessagesToStorage = (map) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  } catch (e) {
+    console.error("Failed to persist messages:", e);
+  }
+};
+
+const loadSavedUsers = () => {
+  try {
+    const raw = localStorage.getItem(USERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : DEMO_USERS;
+  } catch {
+    return DEMO_USERS;
+  }
+};
+
+const saveUsersToStorage = (users) => {
+  try {
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  } catch {
+    // ignore
+  }
+};
 
 // Helper to decrypt a single message if it is an encrypted text message
 const decryptSingleMessage = async (msg, myId) => {
@@ -22,32 +55,27 @@ const decryptSingleMessage = async (msg, myId) => {
   return msg;
 };
 
-let replyIndex = 0;
-
 export const useChatStore = create((set, get) => ({
   messages: [],
-  users: [],
+  users: loadSavedUsers(),
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
-  isPartnerTyping: false,
-  unreadCounts: {
-    "user-priya-02": 1,
-    "user-ananya-04": 1,
-  },
-  demoMessagesMap: { ...INITIAL_DEMO_MESSAGES },
+  unreadCounts: {},
+  demoMessagesMap: loadSavedMessages(),
   chatThemes: JSON.parse(localStorage.getItem("chat-themes") || "{}"),
 
   getUsers: async () => {
     set({ isUsersLoading: true });
     const { isDemoMode } = useAuthStore.getState();
+    const persistedUsers = loadSavedUsers();
 
     if (isDemoMode) {
-      const currentUsers = get().users.length > 0 ? get().users : DEMO_USERS;
-      const currentSelected = get().selectedUser || currentUsers[0] || null;
+      const currentSelected = get().selectedUser || persistedUsers[0] || null;
       set({
-        users: currentUsers,
+        users: persistedUsers,
         selectedUser: currentSelected,
+        demoMessagesMap: loadSavedMessages(),
         isUsersLoading: false,
       });
       return;
@@ -55,18 +83,18 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.get("/messages/users", { timeout: 2500 });
-      if (Array.isArray(res.data)) {
+      if (Array.isArray(res.data) && res.data.length > 0) {
         set({ users: res.data });
         get().fetchUnreadCounts();
         return;
       }
-      throw new Error("Invalid users payload");
+      throw new Error("Empty or invalid users payload");
     } catch {
-      const currentUsers = get().users.length > 0 ? get().users : DEMO_USERS;
-      const currentSelected = get().selectedUser || currentUsers[0] || null;
+      const currentSelected = get().selectedUser || persistedUsers[0] || null;
       set({
-        users: currentUsers,
+        users: persistedUsers,
         selectedUser: currentSelected,
+        demoMessagesMap: loadSavedMessages(),
       });
     } finally {
       set({ isUsersLoading: false });
@@ -76,26 +104,10 @@ export const useChatStore = create((set, get) => ({
   addDemoConnectionUser: (newUser) => {
     set((state) => {
       if (state.users.some((u) => u._id === newUser._id)) return state;
-      const myId = useAuthStore.getState().authUser?._id || "jayesh-lamba-admin";
-      const welcomeMsg = {
-        _id: `msg-welcome-${Date.now()}`,
-        senderId: newUser._id,
-        receiverId: myId,
-        text: `Hey Jayesh! Excited to connect with you on JayeshChat 👋`,
-        messageType: "text",
-        createdAt: new Date().toISOString(),
-        isRead: false,
-      };
+      const updatedUsers = [newUser, ...state.users];
+      saveUsersToStorage(updatedUsers);
       return {
-        users: [newUser, ...state.users],
-        demoMessagesMap: {
-          ...state.demoMessagesMap,
-          [newUser._id]: [welcomeMsg],
-        },
-        unreadCounts: {
-          ...state.unreadCounts,
-          [newUser._id]: 1,
-        },
+        users: updatedUsers,
       };
     });
   },
@@ -125,13 +137,17 @@ export const useChatStore = create((set, get) => ({
   },
 
   getMessages: async (userId) => {
-    set({ isMessagesLoading: true, isPartnerTyping: false });
+    set({ isMessagesLoading: true });
     const { isDemoMode } = useAuthStore.getState();
+    const latestMap = loadSavedMessages();
 
     if (isDemoMode) {
-      const map = get().demoMessagesMap;
-      const thread = map[userId] || [];
-      set({ messages: thread, isMessagesLoading: false });
+      const thread = latestMap[userId] || [];
+      set({
+        demoMessagesMap: latestMap,
+        messages: thread,
+        isMessagesLoading: false,
+      });
       get().markAsRead(userId);
       return;
     }
@@ -145,9 +161,11 @@ export const useChatStore = create((set, get) => ({
       set({ messages: decrypted });
       get().markAsRead(userId);
     } catch {
-      const map = get().demoMessagesMap;
-      const thread = map[userId] || [];
-      set({ messages: thread });
+      const thread = latestMap[userId] || [];
+      set({
+        demoMessagesMap: latestMap,
+        messages: thread,
+      });
       get().markAsRead(userId);
     } finally {
       set({ isMessagesLoading: false });
@@ -155,17 +173,22 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages, demoMessagesMap } = get();
+    const { selectedUser, messages } = get();
     const { authUser, isDemoMode } = useAuthStore.getState();
     const myId = authUser?._id || "jayesh-lamba-admin";
 
     if (!selectedUser) return;
 
-    const appendLocalDemoMessage = () => {
+    const persistUserMessage = () => {
+      const latestMap = loadSavedMessages();
+      const currentThread = latestMap[selectedUser._id] || messages || [];
       const newMsg = {
         _id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         senderId: myId,
+        senderName: authUser?.fullName || "Jayesh Lamba",
+        senderAvatar: authUser?.profilePic || "./avatar.png",
         receiverId: selectedUser._id,
+        isSentByUser: true,
         text: messageData.text || "",
         image: messageData.image || null,
         video: messageData.video || null,
@@ -174,60 +197,20 @@ export const useChatStore = create((set, get) => ({
         createdAt: new Date().toISOString(),
         isRead: true,
       };
-      const updatedThread = [...messages, newMsg];
+      const updatedThread = [...currentThread, newMsg];
+      const nextMap = {
+        ...latestMap,
+        [selectedUser._id]: updatedThread,
+      };
+      saveMessagesToStorage(nextMap);
       set({
         messages: updatedThread,
-        demoMessagesMap: {
-          ...demoMessagesMap,
-          [selectedUser._id]: updatedThread,
-        },
+        demoMessagesMap: nextMap,
       });
-
-      // Trigger realistic live partner typing + auto-reply in interactive workspace
-      const targetPartnerId = selectedUser._id;
-      setTimeout(() => {
-        if (get().selectedUser?._id === targetPartnerId) {
-          set({ isPartnerTyping: true });
-        }
-      }, 450);
-
-      setTimeout(() => {
-        const replyText = DEMO_AUTO_REPLIES[replyIndex % DEMO_AUTO_REPLIES.length];
-        replyIndex += 1;
-        const replyMsg = {
-          _id: `msg-reply-${Date.now()}`,
-          senderId: targetPartnerId,
-          receiverId: myId,
-          text: replyText,
-          messageType: "text",
-          createdAt: new Date().toISOString(),
-          isRead: true,
-        };
-        const currentMap = get().demoMessagesMap;
-        const prevList = currentMap[targetPartnerId] || [];
-        const nextList = [...prevList, replyMsg];
-        const isStillViewing = get().selectedUser?._id === targetPartnerId;
-
-        set((state) => ({
-          isPartnerTyping: false,
-          messages: isStillViewing ? nextList : state.messages,
-          demoMessagesMap: {
-            ...currentMap,
-            [targetPartnerId]: nextList,
-          },
-          unreadCounts: isStillViewing
-            ? state.unreadCounts
-            : {
-                ...state.unreadCounts,
-                [targetPartnerId]: (state.unreadCounts[targetPartnerId] || 0) + 1,
-              },
-        }));
-        playNotificationSound();
-      }, 1600);
     };
 
     if (isDemoMode) {
-      appendLocalDemoMessage();
+      persistUserMessage();
       return;
     }
 
@@ -248,14 +231,17 @@ export const useChatStore = create((set, get) => ({
 
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, finalData);
       const decrypted = await decryptSingleMessage(res.data, myId);
-      set({ messages: [...messages, decrypted] });
+      const updatedThread = [...messages, decrypted];
+      const nextMap = { ...loadSavedMessages(), [selectedUser._id]: updatedThread };
+      saveMessagesToStorage(nextMap);
+      set({ messages: updatedThread, demoMessagesMap: nextMap });
     } catch {
-      appendLocalDemoMessage();
+      persistUserMessage();
     }
   },
 
   editMessage: async (messageId, newText) => {
-    const { selectedUser, messages, demoMessagesMap } = get();
+    const { selectedUser, messages } = get();
     const { authUser, isDemoMode } = useAuthStore.getState();
     const myId = authUser?._id;
 
@@ -263,11 +249,14 @@ export const useChatStore = create((set, get) => ({
       const updated = messages.map((msg) =>
         msg._id === messageId ? { ...msg, text: newText, isEdited: true } : msg
       );
+      const latestMap = loadSavedMessages();
+      const nextMap = selectedUser
+        ? { ...latestMap, [selectedUser._id]: updated }
+        : latestMap;
+      saveMessagesToStorage(nextMap);
       set({
         messages: updated,
-        demoMessagesMap: selectedUser
-          ? { ...demoMessagesMap, [selectedUser._id]: updated }
-          : demoMessagesMap,
+        demoMessagesMap: nextMap,
       });
       toast.success("Message edited");
       return;
@@ -288,9 +277,8 @@ export const useChatStore = create((set, get) => ({
 
       const res = await axiosInstance.put(`/messages/edit/${messageId}`, payload);
       const decrypted = await decryptSingleMessage(res.data, myId);
-      set({
-        messages: messages.map((msg) => (msg._id === messageId ? decrypted : msg)),
-      });
+      const updated = messages.map((msg) => (msg._id === messageId ? decrypted : msg));
+      set({ messages: updated });
       toast.success("Message edited");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to edit message");
@@ -298,16 +286,19 @@ export const useChatStore = create((set, get) => ({
   },
 
   deleteMessage: async (messageId, type) => {
-    const { selectedUser, messages, demoMessagesMap } = get();
+    const { selectedUser, messages } = get();
     const { isDemoMode } = useAuthStore.getState();
 
     if (isDemoMode) {
       const filtered = messages.filter((msg) => msg._id !== messageId);
+      const latestMap = loadSavedMessages();
+      const nextMap = selectedUser
+        ? { ...latestMap, [selectedUser._id]: filtered }
+        : latestMap;
+      saveMessagesToStorage(nextMap);
       set({
         messages: filtered,
-        demoMessagesMap: selectedUser
-          ? { ...demoMessagesMap, [selectedUser._id]: filtered }
-          : demoMessagesMap,
+        demoMessagesMap: nextMap,
       });
       toast.success(type === "unsend" ? "Message unsent" : "Message deleted");
       return;
@@ -332,7 +323,10 @@ export const useChatStore = create((set, get) => ({
       const fwdMsg = {
         _id: `msg-fwd-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
         senderId: myId,
+        senderName: authUser?.fullName || "Jayesh Lamba",
+        senderAvatar: authUser?.profilePic || "./avatar.png",
         receiverId: targetUserId,
+        isSentByUser: true,
         text: messageData.text || "",
         image: messageData.image || null,
         video: messageData.video || null,
@@ -341,15 +335,17 @@ export const useChatStore = create((set, get) => ({
         createdAt: new Date().toISOString(),
         isRead: true,
       };
-      const currentMap = get().demoMessagesMap;
-      const targetThread = [...(currentMap[targetUserId] || []), fwdMsg];
+      const latestMap = loadSavedMessages();
+      const targetThread = [...(latestMap[targetUserId] || []), fwdMsg];
+      const nextMap = {
+        ...latestMap,
+        [targetUserId]: targetThread,
+      };
+      saveMessagesToStorage(nextMap);
       const isCurrent = get().selectedUser?._id === targetUserId;
       set((state) => ({
         messages: isCurrent ? targetThread : state.messages,
-        demoMessagesMap: {
-          ...currentMap,
-          [targetUserId]: targetThread,
-        },
+        demoMessagesMap: nextMap,
       }));
       return;
     }
@@ -451,7 +447,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser, isPartnerTyping: false }),
+  setSelectedUser: (selectedUser) => set({ selectedUser }),
 
   setChatTheme: (userId, theme) => {
     const updated = { ...get().chatThemes, [userId]: theme };

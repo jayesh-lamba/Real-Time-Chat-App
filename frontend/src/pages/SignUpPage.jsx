@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User, AtSign, Check, X, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User, AtSign, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
@@ -65,45 +65,30 @@ const SignUpPage = () => {
 
   const getUsernameHint = () => {
     if (usernameState === "checking") return { icon: <Loader2 size={14} className="animate-spin text-ink-muted" />, text: "Checking…", color: "text-ink-muted" };
-    if (usernameState === "available") return { icon: <Check size={14} className="text-online-green" />, text: "Username available", color: "text-online-green" };
+    if (usernameState === "available") return { icon: <Check size={14} className="text-online-green" />, text: "Available", color: "text-online-green" };
     if (usernameState === "taken") return { icon: <X size={14} className="text-red-500" />, text: "Already taken", color: "text-red-500" };
     if (usernameState === "invalid") return { icon: <X size={14} className="text-red-500" />, text: "Letters, numbers, _ and . only (min 3)", color: "text-red-500" };
     return null;
   };
 
   const hint = getUsernameHint();
-  const inputBase = "w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-4 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-all focus:border-connect-blue focus:ring-2 focus:ring-connect-blue/20";
+  const inputBase = "w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-4 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-colors focus:border-connect-blue";
 
   return (
     <div className="min-h-screen pt-14 grid lg:grid-cols-2 bg-surface">
-      {/* Left: Form panel */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12 bg-card">
         <div className="w-full max-w-sm space-y-5">
-          {/* Logo */}
           <div className="text-center">
-            <div className="size-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-violet-500 to-cyan-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-indigo-500/25">
-              <MessageSquare className="w-6 h-6 text-white" />
+            <div className="size-10 rounded-xl bg-connect-blue flex items-center justify-center mx-auto mb-3">
+              <MessageSquare className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-2xl font-extrabold text-ink">
-              Join Jayesh<span className="text-connect-blue">Chat</span>
-            </h1>
-            <p className="text-ink-muted text-xs mt-1">
-              Engineered by <span className="text-indigo-300 font-semibold">Jayesh Lamba</span>
-            </p>
+            <h1 className="text-xl font-semibold text-ink">Create an account</h1>
+            <p className="text-ink-muted text-xs mt-1">JayeshChat · Built by Jayesh Lamba</p>
           </div>
-
-          <button
-            type="button"
-            onClick={loginAsDemo}
-            className="w-full py-2 px-4 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-          >
-            <Sparkles size={13} />
-            Instant Demo: Continue as Jayesh Lamba →
-          </button>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label htmlFor="signup-fullname" className="block text-xs font-semibold text-ink mb-1">Full Name</label>
+              <label htmlFor="signup-fullname" className="block text-xs font-medium text-ink mb-1">Full Name</label>
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-muted pointer-events-none" />
                 <input
@@ -119,7 +104,7 @@ const SignUpPage = () => {
             </div>
 
             <div>
-              <label htmlFor="signup-username" className="block text-xs font-semibold text-ink mb-1">Username</label>
+              <label htmlFor="signup-username" className="block text-xs font-medium text-ink mb-1">Username</label>
               <div className="relative">
                 <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-muted pointer-events-none" />
                 <input
@@ -143,14 +128,14 @@ const SignUpPage = () => {
             </div>
 
             <div>
-              <label htmlFor="signup-email" className="block text-xs font-semibold text-ink mb-1">Email</label>
+              <label htmlFor="signup-email" className="block text-xs font-medium text-ink mb-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-muted pointer-events-none" />
                 <input
                   id="signup-email"
                   type="email"
                   className={inputBase}
-                  placeholder="jayeshanand160@gmail.com"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   autoComplete="email"
@@ -159,7 +144,7 @@ const SignUpPage = () => {
             </div>
 
             <div>
-              <label htmlFor="signup-password" className="block text-xs font-semibold text-ink mb-1">Password</label>
+              <label htmlFor="signup-password" className="block text-xs font-medium text-ink mb-1">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-muted pointer-events-none" />
                 <input
@@ -194,24 +179,31 @@ const SignUpPage = () => {
                   Creating account…
                 </>
               ) : (
-                "Create JayeshChat Account"
+                "Create account"
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={loginAsDemo}
+              className="btn-meta-ghost w-full py-2 text-xs"
+            >
+              Continue as Jayesh Lamba
             </button>
           </form>
 
-          <p className="text-center text-sm text-ink-muted">
+          <p className="text-center text-xs text-ink-muted">
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold text-connect-blue hover:underline">
+            <Link to="/login" className="font-medium text-connect-blue hover:underline">
               Sign in
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right: Studio showcase pattern */}
       <AuthImagePattern
-        title="Privacy by Design — JayeshChat v2.4"
-        subtitle="Built by Jayesh Lamba with X25519 asymmetric key exchange, mutual connection graph, and instant WebSocket delivery."
+        title="Privacy by Design"
+        subtitle="Only accepted connections can message you. Built by Jayesh Lamba."
       />
     </div>
   );

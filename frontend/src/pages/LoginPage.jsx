@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,61 +19,28 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen pt-14 grid lg:grid-cols-2 bg-surface">
-      {/* Left: Form panel */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12 bg-card">
         <div className="w-full max-w-sm space-y-6">
-          {/* Logo */}
           <div className="text-center">
-            <div className="size-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-violet-500 to-cyan-400 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/25">
-              <MessageSquare className="w-6 h-6 text-white" />
+            <div className="size-10 rounded-xl bg-connect-blue flex items-center justify-center mx-auto mb-3">
+              <MessageSquare className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-2xl font-extrabold text-ink">
-              Welcome to Jayesh<span className="text-connect-blue">Chat</span>
-            </h1>
-            <p className="text-ink-muted text-xs mt-1">
-              Real-Time E2EE Messenger · Built by{" "}
-              <span className="text-indigo-300 font-semibold">Jayesh Lamba</span>
-            </p>
+            <h1 className="text-xl font-semibold text-ink">Sign in to JayeshChat</h1>
+            <p className="text-ink-muted text-xs mt-1">Built by Jayesh Lamba</p>
           </div>
 
-          {/* Instant 1-Click Live Workspace Entry */}
-          <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1">
-                <Sparkles size={12} />
-                Instant Live Demo
-              </span>
-              <span className="text-[10px] text-emerald-400 font-semibold">● Ready</span>
-            </div>
-            <button
-              type="button"
-              onClick={loginAsDemo}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
-            >
-              <Sparkles size={14} />
-              Launch Workspace as Jayesh Lamba →
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-border-subtle" />
-            <span className="text-[11px] text-ink-muted uppercase font-semibold">or sign in with email</span>
-            <div className="h-px flex-1 bg-border-subtle" />
-          </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="login-email" className="block text-xs font-semibold text-ink mb-1.5">
-                Email Address
+              <label htmlFor="login-email" className="block text-xs font-medium text-ink mb-1.5">
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ink-muted pointer-events-none" />
                 <input
                   id="login-email"
                   type="email"
-                  className="w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-4 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-all focus:border-connect-blue focus:ring-2 focus:ring-connect-blue/20"
-                  placeholder="jayeshanand160@gmail.com"
+                  className="w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-4 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-colors focus:border-connect-blue"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   autoComplete="email"
@@ -82,7 +49,7 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label htmlFor="login-password" className="block text-xs font-semibold text-ink mb-1.5">
+              <label htmlFor="login-password" className="block text-xs font-medium text-ink mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -90,7 +57,7 @@ const LoginPage = () => {
                 <input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
-                  className="w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-10 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-all focus:border-connect-blue focus:ring-2 focus:ring-connect-blue/20"
+                  className="w-full rounded-xl border border-border-subtle bg-surface pl-10 pr-10 py-2.5 text-sm text-ink placeholder-ink-muted outline-none transition-colors focus:border-connect-blue"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -119,24 +86,31 @@ const LoginPage = () => {
                   Signing in…
                 </>
               ) : (
-                "Sign in to JayeshChat"
+                "Sign in"
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={loginAsDemo}
+              className="btn-meta-ghost w-full py-2 text-xs"
+            >
+              Continue as Jayesh Lamba
             </button>
           </form>
 
-          <p className="text-center text-sm text-ink-muted">
+          <p className="text-center text-xs text-ink-muted">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" className="font-semibold text-connect-blue hover:underline">
-              Create one
+            <Link to="/signup" className="font-medium text-connect-blue hover:underline">
+              Create account
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right: Studio showcase pattern */}
       <AuthImagePattern
-        title="Real-Time Messaging, Engineered by Jayesh Lamba"
-        subtitle="Experience low-latency WebSockets, X25519 end-to-end encryption, WebRTC voice/video calls, and ephemeral stories."
+        title="Private, Real-Time Messaging"
+        subtitle="End-to-end encrypted conversations built with React, Node.js, and Socket.IO by Jayesh Lamba."
       />
     </div>
   );

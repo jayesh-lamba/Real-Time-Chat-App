@@ -10,28 +10,22 @@ const HomePage = () => {
   const [showSearch, setShowSearch] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col bg-surface overflow-hidden">
-      {/* Spacer matching the height of the fixed top Navbar (h-14 / 56px) */}
+    <div className="h-screen w-screen flex flex-col bg-surface overflow-hidden">
+      {/* Spacer matching fixed top Navbar (h-14) */}
       <div className="h-14 flex-shrink-0" />
 
-      {/* Main chat window container */}
-      <div className="flex-grow flex justify-center overflow-hidden">
-        <div className="bg-card shadow-sm w-full h-full max-w-7xl border-x border-border-subtle">
-          <div className="flex h-full overflow-hidden">
-            {/* Sidebar — hidden on mobile when chat is open */}
-            <div className={`${selectedUser ? "hidden sm:flex" : "flex"} flex-shrink-0`}>
-              <Sidebar onOpenSearch={() => setShowSearch(true)} />
-            </div>
+      {/* Full-viewport chat layout — zero side bezels */}
+      <div className="flex-1 w-full flex overflow-hidden bg-card">
+        <div className={`${selectedUser ? "hidden sm:flex" : "flex"} flex-shrink-0 h-full`}>
+          <Sidebar onOpenSearch={() => setShowSearch(true)} />
+        </div>
 
-            {/* Main content */}
-            <div className={`flex-1 flex flex-col min-w-0 ${selectedUser ? "flex" : "hidden sm:flex"}`}>
-              {!selectedUser ? (
-                <NoChatSelected onOpenSearch={() => setShowSearch(true)} />
-              ) : (
-                <ChatContainer />
-              )}
-            </div>
-          </div>
+        <div className={`flex-1 flex flex-col min-w-0 h-full ${selectedUser ? "flex" : "hidden sm:flex"}`}>
+          {!selectedUser ? (
+            <NoChatSelected onOpenSearch={() => setShowSearch(true)} />
+          ) : (
+            <ChatContainer />
+          )}
         </div>
       </div>
 
@@ -39,6 +33,5 @@ const HomePage = () => {
     </div>
   );
 };
-
 
 export default HomePage;
